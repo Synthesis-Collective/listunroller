@@ -56,7 +56,7 @@ namespace ListUnroller
 
                     // Add an entry per count - 1
                     var count = entry.Data.Count;
-                    for (int j = 1; j < count - 1; j++)
+                    for (int j = 1; j < count; j++)
                     {
                         modifiedList.Entries?.Add(new LeveledItemEntry()
                         {
@@ -86,7 +86,7 @@ namespace ListUnroller
 
                     // Add an entry per count - 1
                     var count = entry.Data.Count;
-                    for (int j = 1; j < count - 1; j++)
+                    for (int j = 1; j < count; j++)
                     {
                         modifiedList.Entries?.Add(new LeveledNpcEntry()
                         {
@@ -116,7 +116,7 @@ namespace ListUnroller
 
                     // Add an entry per count - 1
                     var count = entry.Data.Count;
-                    for (int j = 1; j < count - 1; j++)
+                    for (int j = 1; j < count; j++)
                     {
                         modifiedList.Entries?.Add(new LeveledSpellEntry()
                         {
