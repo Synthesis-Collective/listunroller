@@ -23,8 +23,6 @@ namespace ListUnroller
 
     public class Program
     {
-
-
         public static int Main(string[] args)
         {
             return SynthesisPipeline.Instance.Patch<ISkyrimMod, ISkyrimModGetter>(
@@ -133,11 +131,6 @@ namespace ListUnroller
                     entry.Data.Count = 1;
                 }
             }
-        }
-
-        void PatchLeveledItem()
-        {
-
         }
     }
 }
