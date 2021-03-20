@@ -4,47 +4,27 @@ using System.Linq;
 using Mutagen.Bethesda;
 using Mutagen.Bethesda.Synthesis;
 using Mutagen.Bethesda.Skyrim;
+using System.Threading.Tasks;
+using Noggog;
 
 namespace ListUnroller
 {
-    public static class MyExtensions
-    {
-        public static bool ContainsInsensitive(this string str, string rhs)
-        {
-            return str.Contains(rhs, StringComparison.OrdinalIgnoreCase);
-        }
-
-        public static IEnumerable<T> EmptyIfNull<T>(this IEnumerable<T>? e)
-        {
-            if (e == null) return Enumerable.Empty<T>();
-            return e;
-        }
-    }
-
     public class Program
     {
-        public static int Main(string[] args)
+        public static Task<int> Main(string[] args)
         {
-            return SynthesisPipeline.Instance.Patch<ISkyrimMod, ISkyrimModGetter>(
-                args: args,
-                patcher: RunPatch,
-                new UserPreferences()
-                {
-                    ActionsForEmptyArgs = new RunDefaultPatcher()
-                    {
-                        IdentifyingModKey = "ListUnroller.esp",
-                        TargetRelease = GameRelease.SkyrimSE
-                    }
-                }
-            );
+            return SynthesisPipeline.Instance
+                .AddPatch<ISkyrimMod, ISkyrimModGetter>(RunPatch)
+                .SetTypicalOpen(GameRelease.SkyrimSE, "ListUnroller.esp")
+                .Run(args);
         }
 
         // TODO: De-duplicate this once the mutagen update comes out that includes a more generic way to access these.
-        public static void RunPatch(SynthesisState<ISkyrimMod, ISkyrimModGetter> state)
+        public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
-            foreach (var leveledList in state.LoadOrder.PriorityOrder.WinningOverrides<ILeveledItemGetter>())
+            foreach (var leveledList in state.LoadOrder.PriorityOrder.LeveledItem().WinningOverrides())
             {
-                if (leveledList.EditorID?.ContainsInsensitive("unroll") == false) continue;
+                if (!leveledList.EditorID?.ContainsInsensitive("unroll") ?? true) continue;
 
                 var modifiedList = state.PatchMod.LeveledItems.GetOrAddAsOverride(leveledList);
 
@@ -62,7 +42,7 @@ namespace ListUnroller
                             {
                                 Count = 1,
                                 Level = entry.Data.Level,
-                                Reference = entry.Data.Reference.FormKey
+                                Reference = entry.Data.Reference
                             }
                         });
                     }
@@ -72,9 +52,9 @@ namespace ListUnroller
                 }
             }
 
-            foreach (var leveledList in state.LoadOrder.PriorityOrder.WinningOverrides<ILeveledNpcGetter>())
+            foreach (var leveledList in state.LoadOrder.PriorityOrder.LeveledNpc().WinningOverrides())
             {
-                if (leveledList.EditorID?.ContainsInsensitive("unroll") == false) continue;
+                if (leveledList.EditorID?.ContainsInsensitive("unroll") == false) continue; 
 
                 var modifiedList = state.PatchMod.LeveledNpcs.GetOrAddAsOverride(leveledList);
 
@@ -92,7 +72,7 @@ namespace ListUnroller
                             {
                                 Count = 1,
                                 Level = entry.Data.Level,
-                                Reference = entry.Data.Reference.FormKey
+                                Reference = entry.Data.Reference
                             }
                         });
                     }
@@ -102,9 +82,9 @@ namespace ListUnroller
                 }
             }
 
-            foreach (var leveledList in state.LoadOrder.PriorityOrder.WinningOverrides<ILeveledSpellGetter>())
+            foreach (var leveledList in state.LoadOrder.PriorityOrder.LeveledSpell().WinningOverrides())
             {
-                if (leveledList.EditorID?.ContainsInsensitive("unroll") == false) continue;
+                if (leveledList.EditorID?.ContainsInsensitive("unroll") == false) continue; 
 
                 var modifiedList = state.PatchMod.LeveledSpells.GetOrAddAsOverride(leveledList);
 
@@ -122,7 +102,7 @@ namespace ListUnroller
                             {
                                 Count = 1,
                                 Level = entry.Data.Level,
-                                Reference = entry.Data.Reference.FormKey
+                                Reference = entry.Data.Reference
                             }
                         });
                     }
